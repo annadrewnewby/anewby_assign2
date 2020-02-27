@@ -94,7 +94,7 @@ def service_delete(request, pk):
 @login_required
 def product_list(request):
     products = Product.objects.filter(created_date__lte=timezone.now())
-    return render(request, 'crm/product_list.html', {'product': products})
+    return render(request, 'crm/product_list.html', {'products': products})
 
 @login_required
 def product_new(request):
@@ -106,7 +106,7 @@ def product_new(request):
            product.save()
            product = Product.objects.filter(created_date__lte=timezone.now())
            return render(request, 'crm/product_list.html',
-                         {'product': product})
+                         {'products': product})
    else:
        form = ProductForm()
        # print("Else")
