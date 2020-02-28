@@ -4,6 +4,8 @@ from .models import *
 from .forms import *
 from django.shortcuts import render, get_object_or_404
 from django.shortcuts import redirect
+from django.db.models import Sum
+
 
 
 
@@ -12,6 +14,7 @@ def home(request):
    return render(request, 'crm/home.html',
                  {'crm': home})
 
+#Customers
 @login_required
 def customer_list(request):
     customer = Customer.objects.filter(created_date__lte=timezone.now())
@@ -42,6 +45,7 @@ def customer_delete(request, pk):
    customer.delete()
    return redirect('crm:customer_list')
 
+#Services
 @login_required
 def service_list(request):
    services = Service.objects.filter(created_date__lte=timezone.now())
@@ -86,11 +90,7 @@ def service_delete(request, pk):
    service.delete()
    return redirect('crm:service_list')
 
-
-
-
-
-
+#Products
 @login_required
 def product_list(request):
     products = Product.objects.filter(created_date__lte=timezone.now())
@@ -134,3 +134,18 @@ def product_delete(request, pk):
    product = get_object_or_404(Product, pk=pk)
    product.delete()
    return redirect('crm:product_list')
+
+#Summary
+@login_required
+def summary(request, pk):
+    customer = get_object_or_404(Customer, pk=pk)
+    customers = Customer.objects.filter(created_date__lte=timezone.now())
+    services = Service.objects.filter(cust_name=pk)
+    products = Product.objects.filter(cust_name=pk)
+    sum_service_charge = Service.objects.filter(cust_name=pk).aggregate(Sum('service_charge'))
+    sum_product_charge = Product.objects.filter(cust_name=pk).aggregate(Sum('charge'))
+    return render(request, 'crm/summary.html', {'customers': customers,
+                                                    'products': products,
+                                                    'services': services,
+                                                    'sum_service_charge': sum_service_charge,
+                                                    'sum_product_charge': sum_product_charge,})
